@@ -1,10 +1,15 @@
 # Aurhythm
 
-灵感来源于早期NamiColor概念：
-https://github.com/Wavechaser/NamiColor
+## 灵感与致谢
+
+本项目的开发受到了以下项目的启发，特此致谢：
+
+- **[NamiColor](https://github.com/Wavechaser/NamiColor)**：为本项目提供了最初的胶片处理流程设计思路。
+
+**重要说明**：本项目**未直接使用** NamiColor 的任何源代码，所有代码均为独立实现。两个项目均在 [GNU General Public License v3.0](LICENSE) 协议下开源。
 
 ## 项目简介
-Aurhythm 是一个用于处理和转换胶片负片扫描图像的专业工具。它提供完整的图形化界面，通过模拟专业胶片冲扫的色彩科学流程，将负片或对数文件转换为色彩正确的正像。
+Aurhythm 是一个用于处理和转换胶片负片扫描图像的工具。它提供完整的图形化界面，通过模拟专业胶片冲扫的色彩科学流程，将负片或对数文件转换为色彩正确的正像。
 
 **请注意**：目前输入只设置了允许16位线性tiff(gamma=1.0)文件，其他输入方式可能不准确。
 
