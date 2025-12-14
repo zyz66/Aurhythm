@@ -1,5 +1,7 @@
 # Aurhythm
 
+**中文 | [English](README_EN.md)**
+
 ## 灵感与致谢
 
 本项目的开发受到了以下项目的启发，特此致谢：
@@ -29,12 +31,11 @@ Aurhythm 是一个用于处理和转换胶片负片扫描图像的工具。它�
 
 ### 安装与运行
 
-#### 使用启动脚本
 1. 克隆或下载本仓库
 2. 安装依赖包：
    ```bash
    pip install colour-science numpy imageio Pillow matplotlib
-3. 双击运行 `run.bat`
+3. 双击运行 run.bat
 
 贡献指南
 我们欢迎任何形式的贡献，包括但不限于报告错误、提出新功能建议或提交代码改进。
