@@ -36,7 +36,7 @@ Aurhythm is a tool for processing and converting scanned film negative images. I
 1. Clone or download this repository.
 2. Install the required packages:
    ```bash
-   pip install colour-science numpy imageio Pillow matplotlib
+   pip install numpy pillow imageio matplotlib scipy colour-science psutil
 3. Double-click run.bat.
 
 Contributing
