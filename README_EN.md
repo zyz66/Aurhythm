@@ -1,50 +1,57 @@
+
 ```markdown
-# Aurhythm
+# Aurhythm - Film Negative Processor v1.0.0
 
 **English | [中文](README.md)**
 
-## Inspiration & Acknowledgments
+Aurhythm is a desktop application for processing film scan negatives. It provides a complete toolchain to help users convert scanned negatives into log space formats suitable for digital post-production workflows.
 
-The development of this project was inspired by the following works, for which we express our gratitude:
+## Features
 
-- **[NamiColor](https://github.com/Wavechaser/NamiColor)**: Provided the initial design concept for the film processing workflow.
+- **Three-stage Workflow**: Input Setup → Black/White Point Sampling → Kodak Cineon Mapping and Inversion → Channel Alignment → Output Settings
+- **Color Picker Tools**: Normal pipette, black point pipette, and white point pipette
+- **RGB Channel Display**: Real-time display of color distribution for each channel
+- **Multiple Output Spaces**: Support for Cineon, ARRI LogC3, ARRI LogC4, Sony S-Log3, and other log spaces
+- **32-bit Float TIFF Export**: Preserves full dynamic range
 
-**Important Note**: This project does **not directly use** any source code from NamiColor. All code is independently implemented. Both projects are open-sourced under the [GNU General Public License v3.0](LICENSE).
+## Workflow
 
-## Overview
+```mermaid
+flowchart TD
+    A[Input Setup] --> B[Black/White Point Sampling]
+    B --> C[Kodak Cineon Mapping and Inversion]
+    C --> D[Channel Alignment]
+    D --> E[Output Settings]
+    E --> F[Export 32-bit Float TIFF]
 
-Aurhythm is a tool for processing and converting scanned film negative images. It provides a complete graphical interface that simulates a professional film development and scanning color science pipeline to convert negative or log files into correctly colored positive images.
+    Installation Requirements
 
-**Please Note**: Currently, the input is configured to accept only **16-bit linear TIFF files (gamma=1.0)**. Other input methods may not produce accurate results.
+## Required Dependencies
+Python 3.8 or higher
 
-## Key Features
-- **Scientific Processing Pipeline**: Implements a color space conversion of **Linear -> Log (Cineon) -> Linear**, simulating the film processing workflow.
-- **Channel Alignment Tools**: Provides independent RGB channel offset and gain controls for color cast correction.
-- **Real-Time Color Adjustment**: Integrates exposure, contrast, saturation, color temperature/tint adjustments with live preview.
-- **Visualization Analysis**: Built-in RGB waveform (vectorscope) for color balance reference.
-- **Graphical User Interface**: Developed with Tkinter, no command-line operation required.
-- **Multi-Mode Support**: Capable of processing negatives, reversal films, and log files (Log2Log).
+tkinter (usually installed with Python)
 
-## Quick Start
+Currently supports Windows operating system
 
-### Prerequisites
-- Python 3.8 or higher
-- Currently supports Windows operating systems
+Clone or download this repository
 
-### Installation & Running
+### Python Package Dependencies
 
-1. Clone or download this repository.
-2. Install the required packages:
-   ```bash
-   pip install numpy pillow imageio matplotlib scipy colour-science psutil
-3. Double-click run.bat.
+```bash
+pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 
-Contributing
-We welcome all forms of contribution, including but not limited to reporting bugs, suggesting new features, or submitting code improvements.
-
-Reporting Issues: Please submit problem reports on the GitHub Issues page.
-
-Improving Code: Pull Requests are welcome. Please fork this repository and make your changes on your branch.
+Double-click run.bat to run
 
 License
-This project is released under the GNU General Public License v3.0 (GPL-3.0). For full details, please see the LICENSE file.
+Aurhythm is open source under the MIT License. See LICENSE file for details.
+
+Acknowledgments
+The principles of this program were initially inspired by the namicolor plugin, but Aurhythm's code is completely independently written and does not use any code from namicolor.
+
+Contribution Guidelines
+We welcome all forms of contributions, including but not limited to bug reports, feature suggestions, or code improvements.
+
+Report Issues: Please submit issue reports on the GitHub Issues page.
+
+Improve Code: Pull requests are welcome. Fork this repository and make modifications on your branch.
+
