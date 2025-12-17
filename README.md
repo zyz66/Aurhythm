@@ -28,19 +28,19 @@ flowchart TD
 - tkinter (通常随Python一起安装)
 - 目前支持 Windows 操作系统
 
-# 步骤1：获取代码
-# 如果你有git，可以克隆仓库：
+### 步骤1：获取代码
+### 如果你有git，可以克隆仓库：
 git clone https://github.com/yourusername/aurhythm.git
 cd aurhythm
 
-# 如果没有git，请手动下载ZIP并解压，然后进入解压后的目录。
+### 如果没有git，请手动下载ZIP并解压，然后进入解压后的目录。
 
-# 步骤2：安装依赖
+### 步骤2：安装依赖
 pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 
-# 步骤3：运行
-# 在Windows上，可以双击run.bat，或者在命令行中运行：
+### 步骤3：运行
+### 在Windows上，可以双击run.bat，或者在命令行中运行：
 python Aurhythm.py
 
-# 在其他操作系统上，请使用命令行运行：
-# python Aurhythm.py
+### 在其他操作系统上，请使用命令行运行：
+### python Aurhythm.py
