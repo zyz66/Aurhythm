@@ -14,7 +14,6 @@ Aurhythm 是一个用于处理胶片扫描负片的桌面应用程序。它提�
 
 ## 工作流程
 
-```mermaid
 flowchart TD
     A[输入设置] --> B[取色黑点白点]
     B --> C[柯达Cineon映射及反转]
