@@ -43,4 +43,17 @@ pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 python Aurhythm.py
 
 ### 在其他操作系统上，请使用命令行运行：
-### python Aurhythm.py
+python Aurhythm.py
+
+许可证
+Aurhythm 使用 MIT 许可证开源。详见 LICENSE 文件。
+
+贡献指南
+我们欢迎任何形式的贡献，包括但不限于报告错误、提出新功能建议或提交代码改进。
+
+报告问题：请在 GitHub Issues 页面提交问题报告。
+
+改进代码：欢迎提交 Pull Request。请 Fork 本仓库，并在您的分支上进行修改。
+
+致谢
+本程序的原理早期参考了namicolor插件，但Aurhythm的代码是完全独立编写的，未使用namicolor的任何代码。
