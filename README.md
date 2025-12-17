@@ -1,4 +1,8 @@
+
+```markdown
 # Aurhythm - 胶片负片处理器 v1.0.0
+
+**中文 | [ENGLISH](README_EN.md)**
 
 Aurhythm 是一个用于处理胶片扫描负片的桌面应用程序。它提供了一套完整的工具链，帮助用户将扫描的负片转换为对数空间格式，适合数字后期处理流程。
 
@@ -43,3 +47,6 @@ Aurhythm 使用 MIT 许可证开源。详见 LICENSE 文件。
 报告问题：请在 GitHub Issues 页面提交问题报告。
 
 改进代码：欢迎提交 Pull Request。请 Fork 本仓库，并在您的分支上进行修改。
+
+致谢
+本程序的原理早期参考了namicolor插件，但Aurhythm的代码是完全独立编写的，未使用namicolor的任何代码。
