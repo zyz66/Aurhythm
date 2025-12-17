@@ -1,5 +1,3 @@
-
-```markdown
 # Aurhythm - 胶片负片处理器 v1.0.0
 
 **中文 | [ENGLISH](README_EN.md)**
