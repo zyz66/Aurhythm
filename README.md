@@ -30,8 +30,8 @@ flowchart TD
 
 克隆或下载本仓库
 ### Python包依赖
-```bash
-pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
+    ```bash
+    pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 
 双击运行 run.bat
 
