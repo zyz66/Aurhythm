@@ -44,10 +44,7 @@ Aurhythm\Scripts\activate
 pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 ```
 ### 步骤4：运行
-### 在Windows上，可以双击run.bat，或者在命令行中运行：
-python Aurhythm.py
-
-### 在其他操作系统上，请使用命令行运行：
+### 可以在命令行中运行：
 python Aurhythm.py
 
 许可证
