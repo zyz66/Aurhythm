@@ -46,8 +46,9 @@ pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 ### 步骤4：运行
 ### 可以在命令行中运行：
 ```bash
-pythpython Aurhythmu```
-许可证hm 使用 MIT 许可证开源。详见 LICENSE 文件。
+pythpython Aurhythm
+```
+许可证使用 MIT 许可证开源。详见 LICENSE 文件。
 
 贡献指南
 我们欢迎任何形式的贡献，包括但不限于报告错误、提出新功能建议或提交代码改进。
