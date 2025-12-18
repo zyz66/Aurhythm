@@ -607,7 +607,7 @@ class FilmProcessorUI:
         
         self.root = tk.Tk()
         self.root.title("Aurhythm 胶片负片处理器 v1.0.0")
-        self.root.geometry("1400x1000")
+        self.root.geometry("1400x1200")
         self.root.configure(bg=self.bg_color)
         
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -741,26 +741,26 @@ class FilmProcessorUI:
         
         self.color_picker = ColorPicker(self.image_canvas, self.on_color_picked)
         
-        rgb_frame = ttk.LabelFrame(parent, text="RGB分量图", padding=5)
+        rgb_frame = ttk.LabelFrame(parent, text="RGB色彩分量图", padding=5)
         rgb_frame.pack(fill=tk.X, pady=(10, 0))
         
         channel_frame = ttk.Frame(rgb_frame)
         channel_frame.pack(fill=tk.BOTH, expand=True)
         
-        self.r_canvas = tk.Canvas(channel_frame, bg='black', height=100)
-        self.g_canvas = tk.Canvas(channel_frame, bg='black', height=100)
-        self.b_canvas = tk.Canvas(channel_frame, bg='black', height=100)
+        self.r_canvas = tk.Canvas(channel_frame, bg='black', height=80)
+        self.g_canvas = tk.Canvas(channel_frame, bg='black', height=80)
+        self.b_canvas = tk.Canvas(channel_frame, bg='black', height=80)
         
-        self.r_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 2))
-        self.g_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2)
-        self.b_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(2, 0))
+        self.r_canvas.pack(fill=tk.X, pady=(0, 5))
+        self.g_canvas.pack(fill=tk.X, pady=(0, 5))
+        self.b_canvas.pack(fill=tk.X, pady=(0, 5))
         
         label_frame = ttk.Frame(rgb_frame)
         label_frame.pack(fill=tk.X)
         
-        ttk.Label(label_frame, text="R", foreground='red', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
-        ttk.Label(label_frame, text="G", foreground='green', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
-        ttk.Label(label_frame, text="B", foreground='blue', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
+        ttk.Label(label_frame, text="红色分量", foreground='red', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
+        ttk.Label(label_frame, text="绿色分量", foreground='green', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
+        ttk.Label(label_frame, text="蓝色分量", foreground='blue', font=('Arial', 10, 'bold')).pack(side=tk.LEFT, expand=True)
         
         self.image_info_label = ttk.Label(parent, text="未选择图像", relief='sunken')
         self.image_info_label.pack(fill=tk.X, pady=(10, 0))
@@ -770,17 +770,22 @@ class FilmProcessorUI:
             return
         
         height, width = rgb_array.shape[:2]
-        channel_height = 100
+        channel_height = 80
         
-        r_channel = rgb_array[:,:,0]
-        g_channel = rgb_array[:,:,1]
-        b_channel = rgb_array[:,:,2]
+        r_channel = np.zeros_like(rgb_array)
+        r_channel[:,:,0] = rgb_array[:,:,0]
+        
+        g_channel = np.zeros_like(rgb_array)
+        g_channel[:,:,1] = rgb_array[:,:,1]
+        
+        b_channel = np.zeros_like(rgb_array)
+        b_channel[:,:,2] = rgb_array[:,:,2]
         
         scale = channel_height / height
         new_width = int(width * scale)
         
         def resize_channel(channel):
-            channel_img = Image.fromarray(channel, mode='L')
+            channel_img = Image.fromarray(channel, mode='RGB')
             channel_img = channel_img.resize((new_width, channel_height), Image.Resampling.LANCZOS)
             return ImageTk.PhotoImage(channel_img)
         
@@ -792,15 +797,21 @@ class FilmProcessorUI:
         self.g_canvas.delete("all")
         self.b_canvas.delete("all")
         
-        self.r_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=r_photo)
-        self.g_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=g_photo)
-        self.b_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=b_photo)
+        canvas_width = self.r_canvas.winfo_width()
+        if canvas_width > 0:
+            self.r_canvas.create_image(canvas_width//2, channel_height//2, anchor=tk.CENTER, image=r_photo)
+            self.g_canvas.create_image(canvas_width//2, channel_height//2, anchor=tk.CENTER, image=g_photo)
+            self.b_canvas.create_image(canvas_width//2, channel_height//2, anchor=tk.CENTER, image=b_photo)
+        else:
+            self.r_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=r_photo)
+            self.g_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=g_photo)
+            self.b_canvas.create_image(new_width//2, channel_height//2, anchor=tk.CENTER, image=b_photo)
         
         self.rgb_channel_photos = [r_photo, g_photo, b_photo]
     
     def setup_parameter_panel(self, parent):
         notebook = ttk.Notebook(parent)
-        notebook.pack(fill=tk.BOTH, expand=True)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=(0, 5))
         
         input_frame = ttk.Frame(notebook)
         self.setup_input_settings(input_frame)
@@ -827,7 +838,7 @@ class FilmProcessorUI:
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.pack(side="left", fill="both", expand=True)
+        canvas.pack(side="left", fill="both", expand=True, padx=(5, 0))
         scrollbar.pack(side="right", fill="y")
         
         info_label = ttk.Label(scrollable_frame, 
@@ -875,7 +886,7 @@ class FilmProcessorUI:
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.pack(side="left", fill="both", expand=True)
+        canvas.pack(side="left", fill="both", expand=True, padx=(5, 0))
         scrollbar.pack(side="right", fill="y")
         
         red_frame = ttk.LabelFrame(scrollable_frame, text="红色通道", padding=10)
@@ -966,7 +977,7 @@ class FilmProcessorUI:
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.pack(side="left", fill="both", expand=True)
+        canvas.pack(side="left", fill="both", expand=True, padx=(5, 0))
         scrollbar.pack(side="right", fill="y")
         
         target_frame = ttk.LabelFrame(scrollable_frame, text="目标对数空间", padding=10)
@@ -1454,7 +1465,7 @@ if __name__ == '__main__':
     print("2. TIFF文件自动检查色彩空间")
     print("3. 三阶段工作流程：输入设置 → 通道对齐 → 输出设置")
     print("4. 取色吸管工具：正常吸管、黑点吸管、白点吸管")
-    print("5. RGB分量图显示")
+    print("5. RGB色彩分量图显示")
     print("6. 通道对齐：每个通道的偏移和增益（精度0.001）")
     print("7. 生产者-消费者模式保证UI响应")
     print("8. 输出选项：Cineon、LogC3、LogC4、S-Log3")
