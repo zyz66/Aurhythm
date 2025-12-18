@@ -30,7 +30,7 @@ E --> F[导出32位浮点TIFF]
 
 ### 请手动下载ZIP并解压，然后进入解压后的目录。
 
-### 步骤2：构建环境
+### 步骤2：在此目录构建环境
 ```bash
 python -m venv Aurhythm
 ```
@@ -38,7 +38,7 @@ python -m venv Aurhythm
 ```bash
 Aurhythm\Scripts\activate
 ```
-### 步骤3：安装依赖
+### 步骤3：安装依赖（可使用镜像源）
 ```bash
 pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 ```
