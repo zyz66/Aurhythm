@@ -44,12 +44,10 @@ Aurhythm\Scripts\activate
 pip install numpy pillow imageio matplotlib scipy colour-science psutil rawpy
 ```
 Step 4: Run the application
-On Windows, you can double-click run.bat, or run in the command line:
+You can run in the command line:
 ```bash
 python Aurhythm.py
 ```
-On other operating systems, run in the command line:
-python Aurhythm.py
 
 LicenseAurhythm is open-source under the MIT License. See the LICENSE file for details.
 Contribution GuidelinesWe welcome contributions in any form, including but not limited to reporting bugs, suggesting new features, or submitting code improvements.
