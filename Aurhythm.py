@@ -10,6 +10,8 @@ import rawpy
 import warnings
 warnings.filterwarnings('ignore')
 
+# ==================== 工具类 ====================
+
 class ParameterQueue:
     def __init__(self, maxsize=100):
         self.queue = queue.Queue(maxsize=maxsize)
@@ -64,6 +66,8 @@ class RenderingBuffer:
         self.ready_event.wait()
         self.ready_event.clear()
 
+# ==================== 核心处理类 ====================
+
 class ScientificFilmPipeline:
     def __init__(self):
         self.linear_img = None          # 原始线性数据 (已减黑电平)
@@ -71,6 +75,7 @@ class ScientificFilmPipeline:
         self.base_val_rgb = None         # 片基线性值 [R, G, B]
         self.channel_gains = [1.0, 1.0, 1.0]   # 红绿蓝增益
         self.target_space = 'cineon'     # 保留，但实际只输出Cineon
+        self.sample_coords = None        # 采样点的图像坐标 (x, y)
         
     def load_linear_image(self, img_array):
         """加载线性图像数据 (浮点型0~1)"""
@@ -80,9 +85,10 @@ class ScientificFilmPipeline:
         self.image_loaded = True
         return True
     
-    def set_base_val(self, rgb_values):
+    def set_base_val(self, rgb_values, coords=None):
         """设置片基采样值 (已减黑电平的线性值)"""
         self.base_val_rgb = np.array(rgb_values, dtype=np.float32)
+        self.sample_coords = coords
     
     def set_channel_gains(self, gains):
         """设置红绿蓝增益 (用于模拟光源调节)"""
@@ -102,20 +108,30 @@ class ScientificFilmPipeline:
         cineon_code = np.clip(cineon_code, 0.0, 1023.0)
         return cineon_code / 1023.0
     
-    def process_for_preview(self):
-        """生成预览图像 (8位RGB，正像)"""
+    def process_for_preview(self, invert=True):
+        """
+        生成预览图像 (8位RGB)
+        invert=True: 正像预览 (反相 + sRGB)
+        invert=False: 负像预览 (Cineon直接 + sRGB)
+        """
         if not self.image_loaded or self.base_val_rgb is None:
             return None
-        # 应用通道增益 (模拟物理光源调节)
+        # 应用通道增益
         linear_gained = self.linear_img * np.array(self.channel_gains).reshape(1,1,3)
         # 转为Cineon归一化
         cineon_norm = self._linear_to_cineon_norm(linear_gained)
-        # 反相并应用sRGB伽马 (粗略预览)
-        inv = 1.0 - cineon_norm
-        # sRGB近似
-        preview = np.where(inv <= 0.0031308,
-                          inv * 12.92,
-                          1.055 * (inv ** (1/2.4)) - 0.055)
+        
+        if invert:
+            # 正像：反相后应用sRGB
+            disp = 1.0 - cineon_norm
+        else:
+            # 负像：直接应用sRGB
+            disp = cineon_norm
+        
+        # sRGB伽马转换
+        preview = np.where(disp <= 0.0031308,
+                          disp * 12.92,
+                          1.055 * (disp ** (1/2.4)) - 0.055)
         preview = np.clip(preview, 0, 1)
         return (preview * 255).astype(np.uint8)
     
@@ -125,7 +141,9 @@ class ScientificFilmPipeline:
             return None
         linear_gained = self.linear_img * np.array(self.channel_gains).reshape(1,1,3)
         cineon_norm = self._linear_to_cineon_norm(linear_gained)
-        return cineon_norm  # 直接返回0~1的Cineon值
+        return cineon_norm
+
+# ==================== 图像管理 ====================
 
 class ImageManager:
     def __init__(self):
@@ -142,7 +160,8 @@ class ImageManager:
             'name': os.path.basename(file_path),
             'thumbnail': None,
             'metadata': {},
-            'pipeline': ScientificFilmPipeline()
+            'pipeline': ScientificFilmPipeline(),
+            'calibrated': False  # 标记是否已完成校准（有base_val）
         }
         
         thread = threading.Thread(target=self._load_metadata, args=(img_id,), daemon=True)
@@ -178,8 +197,6 @@ class ImageManager:
                 # 转换为浮点0~1
                 img_float = rgb.astype(np.float32) / 65535.0
                 
-                # rawpy已经减去了黑电平，所以这里直接使用
-                
                 if len(img_float.shape) == 2:
                     img_float = np.stack([img_float]*3, axis=2)
                 elif img_float.shape[2] == 4:
@@ -201,13 +218,15 @@ class ImageManager:
             print(f"加载图像数据失败 {img_id}: {e}")
             return None
 
+# ==================== 颜色拾取器 ====================
+
 class ColorPicker:
     def __init__(self, canvas, on_pick_callback=None, on_move_callback=None):
         self.canvas = canvas
         self.on_pick_callback = on_pick_callback
         self.on_move_callback = on_move_callback
         
-        self.current_mode = 'normal'   # 始终为normal，但保留以备扩展
+        self.current_mode = 'normal'
         self.cursor_cross = None
         self.cursor_text = None
         self.image_data = None
@@ -241,9 +260,8 @@ class ColorPicker:
                 rgb_text = f"R: {r:.3f}  G: {g:.3f}  B: {b:.3f}"
                 self.update_crosshair(canvas_x, canvas_y, rgb_text)
                 
-                # 调用移动回调传递线性值
                 if self.on_move_callback:
-                    self.on_move_callback([r, g, b])
+                    self.on_move_callback([r, g, b], (img_x, img_y))
     
     def on_mouse_click(self, event):
         if self.image_data is None:
@@ -260,7 +278,7 @@ class ColorPicker:
                 rgb_values = [r, g, b]
                 
                 if self.on_pick_callback:
-                    self.on_pick_callback(rgb_values)
+                    self.on_pick_callback(rgb_values, (img_x, img_y))
     
     def canvas_to_image(self, canvas_x, canvas_y):
         if self.image_data is None:
@@ -316,9 +334,11 @@ class ColorPicker:
             self.canvas.delete(self.cursor_text)
             self.cursor_text = None
 
+# ==================== 精度滑块 ====================
+
 class PrecisionSlider:
     def __init__(self, parent, label, from_val, to_val, resolution, param_name,
-                 callback=None, width=200):
+                 callback=None, width=300):
         self.parent = parent
         self.label = label
         self.from_val = from_val
@@ -326,6 +346,8 @@ class PrecisionSlider:
         self.resolution = resolution
         self.param_name = param_name
         self.callback = callback
+        self.step_small = resolution
+        self.step_large = resolution * 10
         
         self.frame = ttk.Frame(parent)
         self.frame.pack(fill=tk.X, pady=(0, 8))
@@ -341,6 +363,14 @@ class PrecisionSlider:
                                length=width)
         self.slider.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
+        # 绑定键盘事件
+        self.slider.bind('<FocusIn>', self.on_focus)
+        self.slider.bind('<FocusOut>', self.on_focus_out)
+        self.slider.bind('<Left>', self.on_key_left)
+        self.slider.bind('<Right>', self.on_key_right)
+        self.slider.bind('<Prior>', self.on_key_pageup)   # PageUp
+        self.slider.bind('<Next>', self.on_key_pagedown)  # PageDown
+        
         self.display_frame = ttk.Frame(self.frame)
         self.display_frame.pack(side=tk.RIGHT)
         
@@ -351,6 +381,33 @@ class PrecisionSlider:
         self.slider.bind('<B1-Motion>', self.on_slider_drag)
         self.slider.bind('<ButtonRelease-1>', self.on_slider_release)
         self.entry_var.trace('w', self.on_entry_change)
+    
+    def on_focus(self, event):
+        self.slider.config(takefocus=1)
+    
+    def on_focus_out(self, event):
+        pass
+    
+    def on_key_left(self, event):
+        self.change_value(-self.step_small)
+    
+    def on_key_right(self, event):
+        self.change_value(self.step_small)
+    
+    def on_key_pageup(self, event):
+        self.change_value(self.step_large)
+    
+    def on_key_pagedown(self, event):
+        self.change_value(-self.step_large)
+    
+    def change_value(self, delta):
+        new_val = self.value_var.get() + delta
+        new_val = max(self.from_val, min(self.to_val, new_val))
+        new_val = round(new_val / self.resolution) * self.resolution
+        self.value_var.set(new_val)
+        self.entry_var.set(f"{new_val:.3f}")
+        if self.callback:
+            self.callback(self.param_name, new_val)
     
     def on_slider_drag(self, event):
         value = self.value_var.get()
@@ -385,6 +442,56 @@ class PrecisionSlider:
         self.value_var.set(value)
         self.entry_var.set(f"{value:.3f}")
 
+# ==================== 直方图视图 ====================
+
+class HistogramView(ttk.Frame):
+    def __init__(self, parent, width=380, height=120):
+        super().__init__(parent)
+        self.width = width
+        self.height = height
+        self.canvas = tk.Canvas(self, width=width, height=height, bg='#1e1e1e', highlightthickness=0)
+        self.canvas.pack()
+        self.hist_data = None
+
+    def update_histogram(self, cineon_norm):
+        """更新直方图显示，cineon_norm: (H,W,3) float32 in [0,1]"""
+        if cineon_norm is None or cineon_norm.size == 0:
+            return
+        # 计算直方图 (256 bins)
+        h, w, _ = cineon_norm.shape
+        hist_r, _ = np.histogram(cineon_norm[:,:,0].ravel(), bins=256, range=(0,1))
+        hist_g, _ = np.histogram(cineon_norm[:,:,1].ravel(), bins=256, range=(0,1))
+        hist_b, _ = np.histogram(cineon_norm[:,:,2].ravel(), bins=256, range=(0,1))
+        
+        max_count = max(hist_r.max(), hist_g.max(), hist_b.max())
+        if max_count == 0:
+            return
+        hist_r = hist_r / max_count * (self.height - 20)
+        hist_g = hist_g / max_count * (self.height - 20)
+        hist_b = hist_b / max_count * (self.height - 20)
+        
+        self.canvas.delete('hist')
+        
+        def draw_channel(hist, color):
+            points = [(0, self.height - 10)]
+            for i, h_val in enumerate(hist):
+                x = i * self.width / 256
+                y = self.height - 10 - h_val
+                points.append((x, y))
+            points.append((self.width, self.height - 10))
+            self.canvas.create_polygon(points, fill=color, stipple='gray50', outline='', tags='hist')
+        
+        draw_channel(hist_r, '#ff0000')
+        draw_channel(hist_g, '#00ff00')
+        draw_channel(hist_b, '#0000ff')
+        
+        # 绘制代码95参考线
+        x95 = 95/1023 * self.width
+        self.canvas.create_line(x95, 10, x95, self.height-10, fill='white', dash=(2,2), tags='hist')
+        self.canvas.create_text(x95+5, 15, text='95', fill='white', font=('Arial', 8), anchor='nw', tags='hist')
+
+# ==================== 主界面 ====================
+
 class FilmProcessorUI:
     def __init__(self):
         self.image_manager = ImageManager()
@@ -399,6 +506,7 @@ class FilmProcessorUI:
         self.preview_scale = 0.125
         self.display_scale = 1.0
         self.display_offset = (0, 0)
+        self.sample_coords = None   # 记录采样点坐标
         
         self.bg_color = '#1e1e1e'
         self.frame_bg = '#252526'
@@ -406,8 +514,8 @@ class FilmProcessorUI:
         self.accent_color = '#007acc'
         
         self.root = tk.Tk()
-        self.root.title("Aurhythm 胶片Cineon校准器 v1.0.0")
-        self.root.geometry("1400x900")
+        self.root.title("Aurhythm 胶片Cineon校准器 v1.2.0")
+        self.root.geometry("1500x1000")
         self.root.configure(bg=self.bg_color)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
@@ -435,7 +543,7 @@ class FilmProcessorUI:
         main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         main_paned.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        left_panel = ttk.Frame(main_paned, width=300)
+        left_panel = ttk.Frame(main_paned, width=350)
         self.setup_image_panel(left_panel)
         main_paned.add(left_panel)
         
@@ -443,7 +551,7 @@ class FilmProcessorUI:
         self.setup_preview_panel(middle_panel)
         main_paned.add(middle_panel)
         
-        right_panel = ttk.Frame(main_paned, width=350)
+        right_panel = ttk.Frame(main_paned, width=400)
         self.setup_parameter_panel(right_panel)
         main_paned.add(right_panel)
     
@@ -456,16 +564,18 @@ class FilmProcessorUI:
         btn_frame.pack(fill=tk.X, pady=(0,10))
         ttk.Button(btn_frame, text="添加RAW图像",
                   command=self.add_raw_images, width=15).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btn_frame, text="批量导出",
+                  command=self.batch_export, width=15).pack(side=tk.LEFT, padx=2)
         
         list_frame = ttk.LabelFrame(parent, text="图像列表", padding=5)
         list_frame.pack(fill=tk.BOTH, expand=True)
         
         columns = ('name', 'size', 'status')
-        self.image_tree = ttk.Treeview(list_frame, columns=columns, show='tree headings', height=15)
+        self.image_tree = ttk.Treeview(list_frame, columns=columns, show='tree headings', height=20, selectmode='extended')
         self.image_tree.heading('#0', text='', anchor=tk.W)
         self.image_tree.column('#0', width=30, stretch=False)
         self.image_tree.heading('name', text="文件名", anchor=tk.W)
-        self.image_tree.column('name', width=150)
+        self.image_tree.column('name', width=180)
         self.image_tree.heading('size', text="尺寸", anchor=tk.W)
         self.image_tree.column('size', width=80)
         self.image_tree.heading('status', text="状态", anchor=tk.W)
@@ -479,7 +589,7 @@ class FilmProcessorUI:
         self.image_tree.bind('<<TreeviewSelect>>', self.on_image_selected)
         self.root.bind('<Delete>', self.delete_selected_image)
         
-        tip_label = ttk.Label(parent, text="点击选择图像，Delete键删除",
+        tip_label = ttk.Label(parent, text="点击选择图像，Delete键删除，Ctrl多选批量导出",
                              font=('Microsoft YaHei', 8), foreground='gray')
         tip_label.pack(side=tk.BOTTOM, pady=(5,0))
     
@@ -495,6 +605,11 @@ class FilmProcessorUI:
         resolution_menu.config(width=10)
         resolution_menu.pack(side=tk.LEFT, padx=5)
         
+        # 预览反相复选框
+        self.invert_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(control_frame, text="预览反相 (正像)", variable=self.invert_var,
+                       command=self.on_preview_mode_changed).pack(side=tk.LEFT, padx=10)
+        
         self.image_canvas = tk.Canvas(parent, bg='black', height=500)
         self.image_canvas.pack(fill=tk.BOTH, expand=True)
         
@@ -508,6 +623,12 @@ class FilmProcessorUI:
         self.image_info_label = ttk.Label(parent, text="未选择图像", relief='sunken')
         self.image_info_label.pack(fill=tk.X, pady=(10,0))
     
+    def on_preview_mode_changed(self):
+        """预览模式改变时刷新"""
+        if self.current_image_id is not None:
+            params = self.get_current_params()
+            self.param_queue.put(params)
+    
     def setup_parameter_panel(self, parent):
         notebook = ttk.Notebook(parent)
         notebook.pack(fill=tk.BOTH, expand=True, padx=(0,5))
@@ -519,6 +640,12 @@ class FilmProcessorUI:
         output_frame = ttk.Frame(notebook)
         self.setup_output_tab(output_frame)
         notebook.add(output_frame, text="输出设置")
+        
+        # 直方图放在 notebook 下方
+        hist_frame = ttk.LabelFrame(parent, text="RGB直方图 (Cineon域)", padding=5)
+        hist_frame.pack(fill=tk.X, pady=(10,0), side=tk.BOTTOM)
+        self.hist_view = HistogramView(hist_frame, width=380, height=120)
+        self.hist_view.pack()
     
     def setup_calibration_tab(self, parent):
         canvas = tk.Canvas(parent, highlightthickness=0, bg=self.frame_bg)
@@ -532,9 +659,10 @@ class FilmProcessorUI:
         scrollbar.pack(side="right", fill="y")
         
         info_label = ttk.Label(scrollable_frame,
-                              text="1. 点击'片基采样'按钮，然后在图像片基区域点击取样。\n"
+                              text="1. 点击'片基采样'，然后在图像片基区域点击取样。\n"
                                    "2. 调整通道增益使片基区域三通道Cineon代码接近95。\n"
-                                   "3. 观察实时信息确认校准。",
+                                   "3. 使用自动对齐可快速平衡三通道。\n"
+                                   "4. 观察直方图，峰值应对齐到白色虚线。",
                               justify=tk.LEFT)
         info_label.pack(fill=tk.X, pady=(0,20))
         
@@ -544,20 +672,24 @@ class FilmProcessorUI:
         self.base_point_var = tk.StringVar(value="未采样")
         ttk.Label(base_frame, textvariable=self.base_point_var,
                  font=("Courier",10)).pack(anchor=tk.W, pady=5)
-        ttk.Button(base_frame, text="片基采样",
-                  command=self.activate_base_sampler, width=15).pack()
+        btn_frame = ttk.Frame(base_frame)
+        btn_frame.pack(fill=tk.X)
+        ttk.Button(btn_frame, text="片基采样",
+                  command=self.activate_base_sampler, width=15).pack(side=tk.LEFT, padx=2)
+        ttk.Button(btn_frame, text="自动对齐",
+                  command=self.auto_align, width=15).pack(side=tk.LEFT, padx=2)
         
         gain_frame = ttk.LabelFrame(scrollable_frame, text="通道增益 (模拟光源调节)", padding=10)
         gain_frame.pack(fill=tk.X, pady=(0,10))
         
         self.r_gain_slider = PrecisionSlider(gain_frame, "红增益:", 0.5, 2.0, 0.001,
-                                             'r_gain', self.on_parameter_changed, width=150)
+                                             'r_gain', self.on_parameter_changed, width=300)
         self.r_gain_slider.set_value(1.0)
         self.g_gain_slider = PrecisionSlider(gain_frame, "绿增益:", 0.5, 2.0, 0.001,
-                                             'g_gain', self.on_parameter_changed, width=150)
+                                             'g_gain', self.on_parameter_changed, width=300)
         self.g_gain_slider.set_value(1.0)
         self.b_gain_slider = PrecisionSlider(gain_frame, "蓝增益:", 0.5, 2.0, 0.001,
-                                             'b_gain', self.on_parameter_changed, width=150)
+                                             'b_gain', self.on_parameter_changed, width=300)
         self.b_gain_slider.set_value(1.0)
         
         reset_frame = ttk.Frame(scrollable_frame)
@@ -587,7 +719,7 @@ class FilmProcessorUI:
         
         export_frame = ttk.Frame(scrollable_frame)
         export_frame.pack(fill=tk.X, pady=(20,10))
-        ttk.Button(export_frame, text="导出32位浮点TIFF",
+        ttk.Button(export_frame, text="导出当前图像",
                   command=self.export_current_image, width=20).pack(side=tk.LEFT, padx=2)
     
     def start_render_thread(self):
@@ -602,13 +734,13 @@ class FilmProcessorUI:
                         if pipeline.base_val_rgb is None:
                             time.sleep(0.01)
                             continue
-                        # 更新通道增益
                         gains = [params.get('r_gain',1.0),
                                  params.get('g_gain',1.0),
                                  params.get('b_gain',1.0)]
                         pipeline.set_channel_gains(gains)
                         
-                        display_array = pipeline.process_for_preview()
+                        invert = self.invert_var.get()
+                        display_array = pipeline.process_for_preview(invert=invert)
                         if display_array is not None:
                             if display_array.ndim == 2:
                                 pil_img = Image.fromarray(display_array, mode='L')
@@ -616,6 +748,21 @@ class FilmProcessorUI:
                                 pil_img = Image.fromarray(display_array, mode='RGB')
                             self.render_buffer.update_back_buffer(pil_img)
                             self.render_buffer.swap_buffers()
+                            
+                            # 更新直方图 (使用全分辨率Cineon数据)
+                            linear_gained = pipeline.linear_img * np.array(gains).reshape(1,1,3)
+                            cineon_norm = pipeline._linear_to_cineon_norm(linear_gained)
+                            # 降采样以加快速度
+                            if cineon_norm.shape[0] > 500:
+                                scale = 500 / cineon_norm.shape[0]
+                                h = int(cineon_norm.shape[0] * scale)
+                                w = int(cineon_norm.shape[1] * scale)
+                                img_pil = Image.fromarray((cineon_norm*255).astype(np.uint8))
+                                img_pil_small = img_pil.resize((w,h), Image.Resampling.LANCZOS)
+                                cineon_small = np.array(img_pil_small).astype(np.float32)/255.0
+                            else:
+                                cineon_small = cineon_norm
+                            self.root.after(0, lambda c=cineon_small: self.hist_view.update_histogram(c))
                     time.sleep(0.01)
                 except Exception as exc:
                     print(f"渲染线程错误: {exc}")
@@ -732,22 +879,32 @@ class FilmProcessorUI:
     def activate_base_sampler(self):
         self.color_picker.set_mode('base_sampler')
     
-    def on_color_picked(self, rgb_values):
+    def on_color_picked(self, rgb_values, coords):
         if self.current_image_id is None:
             return
         pipeline = self.image_manager.images[self.current_image_id]['pipeline']
-        pipeline.set_base_val(rgb_values)
+        
+        # 检查采样值是否过小
+        avg_val = sum(rgb_values) / 3
+        if avg_val < 0.05:
+            messagebox.showwarning("采样警告", 
+                "采样点线性值过小（<0.05），可能是密度较大的区域。\n"
+                "真正的片基应该是最亮（线性值最大）的胶片区域，请重新采样片基边缘或片孔附近。")
+        
+        pipeline.set_base_val(rgb_values, coords)
+        self.sample_coords = coords
         self.base_point_var.set(f"R: {rgb_values[0]:.4f}  G: {rgb_values[1]:.4f}  B: {rgb_values[2]:.4f}")
+        # 标记图像已校准
+        self.image_manager.images[self.current_image_id]['calibrated'] = True
         # 立即触发预览更新
         params = self.get_current_params()
         self.param_queue.put(params)
     
-    def on_mouse_move(self, rgb_values):
+    def on_mouse_move(self, rgb_values, coords):
         if self.current_image_id is None:
             return
         pipeline = self.image_manager.images[self.current_image_id]['pipeline']
         if pipeline.base_val_rgb is not None:
-            # 计算当前像素的Cineon代码
             base = pipeline.base_val_rgb
             gains = pipeline.channel_gains
             linear_gained = [rgb_values[i] * gains[i] for i in range(3)]
@@ -783,6 +940,54 @@ class FilmProcessorUI:
         self.b_gain_slider.set_value(1.0)
         params = self.get_current_params()
         self.param_queue.put(params)
+    
+    def auto_align(self):
+        """自动对齐：使采样点的三通道线性值相等，并重新采样"""
+        if self.current_image_id is None:
+            return
+        pipeline = self.image_manager.images[self.current_image_id]['pipeline']
+        if pipeline.base_val_rgb is None or pipeline.sample_coords is None:
+            messagebox.showwarning("警告", "请先进行片基采样")
+            return
+        
+        # 获取采样点的线性值（原始，未应用增益）
+        x, y = pipeline.sample_coords
+        # 注意：当前预览图像可能是缩放的，但采样坐标是基于原始图像坐标的
+        # 我们需要从pipeline.linear_img中获取值
+        if pipeline.linear_img is None:
+            return
+        h, w = pipeline.linear_img.shape[:2]
+        if x >= w or y >= h:
+            messagebox.showerror("错误", "采样坐标超出图像范围")
+            return
+        
+        base_raw = pipeline.linear_img[y, x, :]  # [R,G,B]
+        
+        # 选择绿色为参考，计算增益
+        ref = base_raw[1]  # 绿色
+        gains = [ref / base_raw[0], 1.0, ref / base_raw[2]]
+        # 限制增益范围
+        gains = [max(0.5, min(2.0, g)) for g in gains]
+        
+        # 设置滑块值
+        self.r_gain_slider.set_value(gains[0])
+        self.g_gain_slider.set_value(gains[1])
+        self.b_gain_slider.set_value(gains[2])
+        
+        # 更新管道增益
+        pipeline.set_channel_gains(gains)
+        
+        # 重新采样相同坐标（应用增益后）
+        linear_gained = pipeline.linear_img * np.array(gains).reshape(1,1,3)
+        new_base = linear_gained[y, x, :]
+        pipeline.set_base_val(new_base, (x,y))
+        self.base_point_var.set(f"R: {new_base[0]:.4f}  G: {new_base[1]:.4f}  B: {new_base[2]:.4f}")
+        
+        # 触发预览更新
+        params = self.get_current_params()
+        self.param_queue.put(params)
+        
+        messagebox.showinfo("自动对齐", "已完成自动对齐，片基三通道已平衡。")
     
     def on_resolution_changed(self, value):
         res_map = {"100%":1.0, "75%":0.75, "50%":0.5, "25%":0.25, "12.5%":0.125}
@@ -848,6 +1053,80 @@ class FilmProcessorUI:
         
         threading.Thread(target=export_thread, daemon=True).start()
     
+    def batch_export(self):
+        """批量导出选中的图像"""
+        selected = self.image_tree.selection()
+        if not selected:
+            messagebox.showwarning("警告", "没有选中任何图像")
+            return
+        
+        # 选择输出目录
+        output_dir = filedialog.askdirectory(title="选择导出目录")
+        if not output_dir:
+            return
+        
+        # 收集已校准的图像ID
+        to_export = []
+        for img_id_str in selected:
+            img_id = int(img_id_str)
+            img_info = self.image_manager.images.get(img_id)
+            if img_info and img_info['pipeline'].base_val_rgb is not None:
+                to_export.append(img_id)
+        
+        if not to_export:
+            messagebox.showwarning("警告", "选中的图像中没有一个已完成片基采样")
+            return
+        
+        # 确认
+        if not messagebox.askyesno("确认批量导出", f"将导出 {len(to_export)} 个图像到目录:\n{output_dir}\n继续吗？"):
+            return
+        
+        def batch_thread():
+            success = 0
+            failed = 0
+            for img_id in to_export:
+                try:
+                    img_info = self.image_manager.images[img_id]
+                    pipeline = img_info['pipeline']
+                    
+                    # 加载全尺寸图像
+                    img_data = self.image_manager.get_image_data(img_id, scale=1.0)
+                    if img_data is None:
+                        failed += 1
+                        continue
+                    
+                    export_pipeline = ScientificFilmPipeline()
+                    export_pipeline.load_linear_image(img_data)
+                    export_pipeline.base_val_rgb = pipeline.base_val_rgb.copy()
+                    export_pipeline.channel_gains = pipeline.channel_gains.copy()
+                    
+                    output = export_pipeline.process_for_output()
+                    if output is None:
+                        failed += 1
+                        continue
+                    
+                    # 生成输出文件名
+                    base_name = os.path.splitext(img_info['name'])[0]
+                    out_path = os.path.join(output_dir, f"{base_name}_cineon.tif")
+                    
+                    # 保存
+                    try:
+                        import tifffile
+                        tifffile.imwrite(out_path, output.astype(np.float32), photometric='rgb')
+                    except ImportError:
+                        import imageio
+                        imageio.imwrite(out_path, output.astype(np.float32), format='TIFF')
+                    
+                    success += 1
+                except Exception as e:
+                    print(f"导出失败 {img_id}: {e}")
+                    failed += 1
+            
+            self.root.after(0, lambda: messagebox.showinfo("批量导出完成", 
+                f"成功: {success} 个\n失败: {failed} 个"))
+        
+        threading.Thread(target=batch_thread, daemon=True).start()
+    
     def clear_preview(self):
         self.image_canvas.delete("all")
         self.color_picker.clear_crosshair()
@@ -855,6 +1134,7 @@ class FilmProcessorUI:
         self.cursor_info_label.config(text="")
         self.current_image_data = None
         self.base_point_var.set("未采样")
+        self.hist_view.canvas.delete('hist')
     
     def on_closing(self):
         self.render_running = False
@@ -862,10 +1142,15 @@ class FilmProcessorUI:
 
 if __name__ == '__main__':
     print("=" * 70)
-    print("Aurhythm 胶片Cineon校准器 v1.0.0")
+    print("Aurhythm 胶片Cineon校准器 v1.2.0")
     print("=" * 70)
     print("功能: 直接读取RAW (NEF/DNG等) -> 片基采样 -> 增益调节 -> 导出Cineon 32位浮点TIFF")
     print("校准公式: CineonCode = 95 + 500 * log10(base / L)")
+    print("新增特性:")
+    print("  - 批量导出（支持多选）")
+    print("  - 预览反相可切换（正像/负像）")
+    print("  - 采样过低警告")
+    print("  - 自动对齐后重新采样")
     print("=" * 70)
     
     try:
