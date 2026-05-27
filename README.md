@@ -10,7 +10,7 @@
 ---
 
 ## 📊 算法流程图
-
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" font-family="monospace" font-size="12">
   <defs>
     <style>
@@ -138,14 +138,14 @@
   <text x="450" y="1330" class="text" font-size="16" fill="#00b4d8" font-weight="bold">Aurhythm 胶片 Cineon 校准器 v3.6</text>
   <text x="450" y="1360" class="text" font-size="12" fill="#888">RAW → 密度 → 解串扰 → Sigmoid H-D → Cineon → LogC3</text>
 </svg>
-
+```
 ### 🚀 快速开始
 安装依赖
-```
+```bash
 pip install rawpy numpy pillow tifffile
 ```
 运行软件
-```
+```bash
 python Aurhythm.py
 ```
 基本操作流程
