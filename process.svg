@@ -1,110 +1,147 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" font-family="monospace" font-size="12">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1550" font-family="monospace" font-size="12">
   <defs>
-    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#00b4d8"/>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#00b4d8"/>
     </marker>
+    <marker id="arrowhead_green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#00ff00"/>
+    </marker>
+    <marker id="arrowhead_orange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ffaa00"/>
+    </marker>
+    <linearGradient id="bg_grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
   </defs>
 
-  <rect width="900" height="1400" fill="#0d1117"/>
+  <rect width="1000" height="1550" fill="url(#bg_grad)"/>
 
-  <!-- 输入 -->
-  <rect x="300" y="20" width="300" height="50" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="45" fill="#e0e0e0" text-anchor="middle" font-size="14">📷 输入: RAW 文件</text>
-  <text x="450" y="65" fill="#888" text-anchor="middle" font-size="10">NEF / DNG / CR2 / ARW / RAF / ORF / RW2</text>
-  <line x1="450" y1="70" x2="450" y2="95" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 标题 ====== -->
+  <text x="500" y="32" fill="#00b4d8" text-anchor="middle" font-size="18" font-weight="bold">Aurhythm 胶片 Cineon 校准器 v4.2</text>
+  <text x="500" y="52" fill="#888" text-anchor="middle" font-size="12">完整色彩管理流程: ICC/DCP + 色卡矫正 + 密度法 + 胶片预设</text>
+  <line x1="180" y1="62" x2="820" y2="62" stroke="#333" stroke-width="1"/>
 
-  <!-- 步骤1 -->
-  <rect x="250" y="100" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="125" fill="#e0e0e0" text-anchor="middle" font-size="13">📦 步骤 1: RAW 解码</text>
-  <text x="450" y="145" fill="#e0e0e0" text-anchor="middle" font-size="11">rawpy.postprocess(gamma=(1,1), no_auto_bright=True)</text>
-  <text x="450" y="165" fill="#00b4d8" text-anchor="middle" font-size="11">→ CMOS 电平 (0-1 浮点)</text>
-  <line x1="450" y1="180" x2="450" y2="205" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 输入 ====== -->
+  <rect x="320" y="75" width="360" height="48" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="95" fill="#e0e0e0" text-anchor="middle" font-size="14">📷 输入: RAW 文件</text>
+  <text x="500" y="113" fill="#888" text-anchor="middle" font-size="10">NEF / DNG / CR2 / ARW / RAF / ORF / RW2</text>
+  <line x1="500" y1="123" x2="500" y2="145" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 步骤2 -->
-  <rect x="250" y="210" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="235" fill="#e0e0e0" text-anchor="middle" font-size="13">🎯 步骤 2: 片基采样</text>
-  <text x="450" y="255" fill="#e0e0e0" text-anchor="middle" font-size="11">点击齿孔/透明区域 → 记录 base_val (RGB)</text>
-  <text x="450" y="275" fill="#00b4d8" text-anchor="middle" font-size="11">→ 定义白场: T=1, D=0</text>
-  <line x1="450" y1="290" x2="450" y2="315" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤1 ====== -->
+  <rect x="280" y="150" width="440" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="172" fill="#e0e0e0" text-anchor="middle" font-size="13">📦 步骤 1: RAW 解码</text>
+  <text x="500" y="190" fill="#888" text-anchor="middle" font-size="11">rawpy.postprocess(gamma=(1,1), no_auto_bright=True)</text>
+  <text x="500" y="207" fill="#00b4d8" text-anchor="middle" font-size="11">→ 线性光 RGB (0-1 浮点)</text>
+  <line x1="500" y1="212" x2="500" y2="235" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 步骤3 -->
-  <rect x="250" y="320" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="345" fill="#e0e0e0" text-anchor="middle" font-size="13">⚖️ 步骤 3: 密度域自动对齐</text>
-  <text x="450" y="365" fill="#e0e0e0" text-anchor="middle" font-size="11">D = -log10(V) → target = mean(D) → 增益 = 10^(D_raw-D_target)</text>
-  <text x="450" y="385" fill="#00b4d8" text-anchor="middle" font-size="11">→ 修复阴影偏蓝</text>
-  <line x1="450" y1="400" x2="450" y2="425" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤2: ICC/DCP ====== -->
+  <rect x="240" y="240" width="520" height="78" fill="#1a1a1a" stroke="#ffaa00" stroke-width="2" rx="6"/>
+  <text x="500" y="262" fill="#e0e0e0" text-anchor="middle" font-size="13">🌡️ 步骤 2: ICC/DCP 色温插值 (可选)</text>
+  <text x="500" y="280" fill="#888" text-anchor="middle" font-size="10.5">导入 .dcp/.icc → 日光矩阵 (5500K) + 钨丝灯矩阵 (3200K)</text>
+  <text x="500" y="297" fill="#e0e0e0" text-anchor="middle" font-size="11">M_interp = w × M_day + (1-w) × M_tung</text>
+  <text x="500" y="314" fill="#ffaa00" text-anchor="middle" font-size="10">← 色温滑块: 0=钨丝灯 | 0.5=中性 | 1=日光 →</text>
+  <line x1="500" y1="318" x2="500" y2="342" stroke="#ffaa00" stroke-width="1.5" marker-end="url(#arrowhead_orange)"/>
 
-  <!-- 步骤4 -->
-  <rect x="250" y="430" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="455" fill="#e0e0e0" text-anchor="middle" font-size="13">📐 步骤 4: 线性 → 密度</text>
-  <text x="450" y="475" fill="#e0e0e0" text-anchor="middle" font-size="11">T = V_gained / base_val</text>
-  <text x="450" y="495" fill="#e0e0e0" text-anchor="middle" font-size="11">D = -log10(T) (Davidson 公式)</text>
-  <line x1="450" y1="510" x2="450" y2="535" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤3: 色卡矫正 ====== -->
+  <rect x="240" y="347" width="520" height="78" fill="#1a1a1a" stroke="#ffaa00" stroke-width="2" rx="6"/>
+  <text x="500" y="369" fill="#e0e0e0" text-anchor="middle" font-size="13">🎯 步骤 3: 色卡矫正 (可选，与ICC并行)</text>
+  <text x="500" y="387" fill="#888" text-anchor="middle" font-size="10.5">导入 .ccmx/.json 或自动检测 X-Rite ColorChecker 24色块</text>
+  <text x="500" y="404" fill="#e0e0e0" text-anchor="middle" font-size="11">M_cc = (detectedᵀ×detected + λI)⁻¹ × detectedᵀ × target</text>
+  <text x="500" y="421" fill="#ffaa00" text-anchor="middle" font-size="10">← 误差分析: ΔE 平均值/最大值 →</text>
+  <line x1="500" y1="425" x2="500" y2="448" stroke="#ffaa00" stroke-width="1.5" marker-end="url(#arrowhead_orange)"/>
 
-  <!-- 步骤5 -->
-  <rect x="250" y="540" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="565" fill="#e0e0e0" text-anchor="middle" font-size="13">🔄 步骤 5: 解串扰矩阵</text>
-  <text x="450" y="585" fill="#e0e0e0" text-anchor="middle" font-size="11">[D_C, D_M, D_Y]ᵀ = M_inv @ [D_R, D_G, D_B]ᵀ</text>
-  <text x="450" y="605" fill="#00b4d8" text-anchor="middle" font-size="11">→ 分离三层染料光谱串扰</text>
-  <line x1="450" y1="620" x2="450" y2="645" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤4: 片基采样 ====== -->
+  <rect x="280" y="453" width="440" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="475" fill="#e0e0e0" text-anchor="middle" font-size="13">📌 步骤 4: 片基采样</text>
+  <text x="500" y="493" fill="#888" text-anchor="middle" font-size="11">手动点击齿孔/透明区域 或 自动检测最亮中性区域</text>
+  <text x="500" y="510" fill="#00b4d8" text-anchor="middle" font-size="11">→ base_val (RGB) 定义白场: T=1, D=0</text>
+  <line x1="500" y1="515" x2="500" y2="538" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 步骤6 -->
-  <rect x="250" y="650" width="400" height="95" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="675" fill="#e0e0e0" text-anchor="middle" font-size="13">📈 步骤 6: 软裁剪 Sigmoid H-D 曲线</text>
-  <text x="450" y="695" fill="#e0e0e0" text-anchor="middle" font-size="11">t = (D - D_min) / (D_max - D_min)</text>
-  <text x="450" y="715" fill="#e0e0e0" text-anchor="middle" font-size="11">t_soft = 1 / (1 + exp(-k×(t-0.5))) (Logistic 软裁剪)</text>
-  <text x="450" y="735" fill="#e0e0e0" text-anchor="middle" font-size="11">logH = b - (1/a) × ln(t_soft/(1-t_soft))</text>
-  <line x1="450" y1="745" x2="450" y2="770" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤5: 密度域对齐 ====== -->
+  <rect x="270" y="543" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="565" fill="#e0e0e0" text-anchor="middle" font-size="13">⚖️ 步骤 5: 密度域自动对齐</text>
+  <text x="500" y="583" fill="#888" text-anchor="middle" font-size="11">D = -log10(V/base_val) → target=0.7 → gain=10^(D_raw-D_target)</text>
+  <text x="500" y="600" fill="#00b4d8" text-anchor="middle" font-size="11">→ 修复阴影偏色 (密度域对齐，非线性域)</text>
+  <line x1="500" y1="605" x2="500" y2="628" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 步骤7 -->
-  <rect x="250" y="775" width="400" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="450" y="800" fill="#e0e0e0" text-anchor="middle" font-size="13">🎞️ 步骤 7: Cineon 编码</text>
-  <text x="450" y="820" fill="#e0e0e0" text-anchor="middle" font-size="11">CineonCode = 95 + 500 × (logH_ref - logH)</text>
-  <text x="450" y="840" fill="#00b4d8" text-anchor="middle" font-size="11">→ 柯达工业标准对数空间 (0-1023)</text>
-  <line x1="450" y1="855" x2="450" y2="880" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤6: 线性→密度 ====== -->
+  <rect x="280" y="633" width="440" height="58" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="655" fill="#e0e0e0" text-anchor="middle" font-size="13">📐 步骤 6: 线性 → 密度</text>
+  <text x="500" y="673" fill="#888" text-anchor="middle" font-size="11">T = V_gained / base_val</text>
+  <text x="500" y="688" fill="#00b4d8" text-anchor="middle" font-size="11">D = -log10(T) (Davidson 公式)</text>
+  <line x1="500" y1="691" x2="500" y2="715" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 分支 -->
-  <line x1="450" y1="880" x2="200" y2="920" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <line x1="450" y1="880" x2="700" y2="920" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <text x="300" y="900" fill="#888" text-anchor="middle" font-size="10">预览</text>
-  <text x="580" y="900" fill="#888" text-anchor="middle" font-size="10">导出</text>
+  <!-- ====== 步骤7: 解串扰矩阵 ====== -->
+  <rect x="270" y="720" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="742" fill="#e0e0e0" text-anchor="middle" font-size="13">🔄 步骤 7: 解串扰矩阵 (胶片预设)</text>
+  <text x="500" y="760" fill="#888" text-anchor="middle" font-size="11">[D_C, D_M, D_Y]ᵀ = M_inv @ [D_R, D_G, D_B]ᵀ</text>
+  <text x="500" y="777" fill="#00b4d8" text-anchor="middle" font-size="11">→ 分离三层CMY染料光谱串扰 (3×3矩阵)</text>
+  <line x1="500" y1="782" x2="500" y2="805" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 预览 -->
-  <rect x="80" y="925" width="240" height="95" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="200" y="950" fill="#e0e0e0" text-anchor="middle" font-size="12">👁️ 预览显示</text>
-  <text x="200" y="970" fill="#e0e0e0" text-anchor="middle" font-size="10">display = 1.0 - data (反相)</text>
-  <text x="200" y="990" fill="#e0e0e0" text-anchor="middle" font-size="10">sRGB 伽马编码</text>
-  <text x="200" y="1010" fill="#00b4d8" text-anchor="middle" font-size="10">→ 8-bit RGB 屏幕显示</text>
+  <!-- ====== 步骤8: Sigmoid H-D ====== -->
+  <rect x="230" y="810" width="540" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="832" fill="#e0e0e0" text-anchor="middle" font-size="13">📈 步骤 8: 软裁剪 Sigmoid H-D 曲线 (胶片预设)</text>
+  <text x="500" y="850" fill="#888" text-anchor="middle" font-size="11">t = (D - D_min) / (D_max - D_min)</text>
+  <text x="500" y="867" fill="#888" text-anchor="middle" font-size="11">t_soft = 1 / (1 + exp(-k × (t - 0.5)))  (Logistic 软裁剪)</text>
+  <text x="500" y="884" fill="#00b4d8" text-anchor="middle" font-size="11">logH = b - (1/a) × ln(t_soft/(1-t_soft))  (logit 逆变换)</text>
+  <line x1="500" y1="890" x2="500" y2="913" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- LogC3 -->
-  <rect x="580" y="925" width="240" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="700" y="950" fill="#e0e0e0" text-anchor="middle" font-size="12">🎥 步骤 8: LogC3 转换</text>
-  <text x="700" y="970" fill="#e0e0e0" text-anchor="middle" font-size="10">E = 10^((Code-95)/500)</text>
-  <text x="700" y="990" fill="#e0e0e0" text-anchor="middle" font-size="10">LogC3 = 0.0925×ln(E+0.005)+0.391</text>
-  <line x1="700" y1="1005" x2="700" y2="1030" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 步骤9: Cineon编码 ====== -->
+  <rect x="270" y="918" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="500" y="940" fill="#e0e0e0" text-anchor="middle" font-size="13">🎞️ 步骤 9: Cineon 编码</text>
+  <text x="500" y="958" fill="#888" text-anchor="middle" font-size="11">CineonCode = 95 + 500 × (logH_ref - logH)</text>
+  <text x="500" y="975" fill="#00b4d8" text-anchor="middle" font-size="11">→ 柯达工业标准对数空间 (0-1023 10-bit编码)</text>
+  <line x1="500" y1="980" x2="500" y2="1003" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- LUT -->
-  <rect x="580" y="1035" width="240" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="700" y="1060" fill="#e0e0e0" text-anchor="middle" font-size="12">🎨 步骤 9: LUT 套用</text>
-  <text x="700" y="1080" fill="#e0e0e0" text-anchor="middle" font-size="10">加载 .cube 3D LUT</text>
-  <text x="700" y="1100" fill="#00b4d8" text-anchor="middle" font-size="10">→ LogC3 → Rec.709</text>
-  <line x1="700" y1="1115" x2="700" y2="1140" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <!-- ====== 分支 ====== -->
+  <line x1="500" y1="1003" x2="220" y2="1040" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="500" y1="1003" x2="780" y2="1040" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <text x="310" y="1025" fill="#888" text-anchor="middle" font-size="10">预览</text>
+  <text x="700" y="1025" fill="#888" text-anchor="middle" font-size="10">导出</text>
 
-  <!-- 输出 -->
-  <rect x="520" y="1145" width="360" height="65" fill="#1a1a1a" stroke="#00ff00" stroke-width="1.5" rx="6"/>
-  <text x="700" y="1170" fill="#00ff00" text-anchor="middle" font-size="14">💾 输出</text>
-  <text x="700" y="1190" fill="#e0e0e0" text-anchor="middle" font-size="11">32-bit 浮点 TIFF</text>
-  <text x="700" y="1205" fill="#e0e0e0" text-anchor="middle" font-size="11">Cineon 或 LogC3 对数空间</text>
+  <!-- ====== 预览分支 ====== -->
+  <rect x="90" y="1045" width="260" height="105" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="220" y="1068" fill="#e0e0e0" text-anchor="middle" font-size="12">👁️ 预览显示</text>
+  <text x="220" y="1088" fill="#888" text-anchor="middle" font-size="10">反相: display = 1.0 - data</text>
+  <text x="220" y="1105" fill="#888" text-anchor="middle" font-size="10">Reinhard 色调映射</text>
+  <text x="220" y="1122" fill="#888" text-anchor="middle" font-size="10">sRGB 伽马编码 (OETF)</text>
+  <text x="220" y="1142" fill="#00b4d8" text-anchor="middle" font-size="10">→ 8-bit RGB 屏幕显示</text>
 
-  <!-- 说明 -->
-  <rect x="80" y="1060" width="240" height="150" fill="#1a1a1a" stroke="#888" stroke-width="1.5" rx="6" stroke-dasharray="4"/>
-  <text x="200" y="1085" fill="#888" text-anchor="middle" font-size="12">📺 预览功能</text>
-  <text x="200" y="1105" fill="#888" text-anchor="middle" font-size="10">• 反相负片转正</text>
-  <text x="200" y="1125" fill="#888" text-anchor="middle" font-size="10">• sRGB 伽马校正</text>
-  <text x="200" y="1145" fill="#888" text-anchor="middle" font-size="10">• 实时鼠标读数</text>
-  <text x="200" y="1165" fill="#888" text-anchor="middle" font-size="10">• RGB 直方图</text>
+  <!-- ====== 步骤10: LogC3 ====== -->
+  <rect x="640" y="1045" width="280" height="75" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="780" y="1068" fill="#e0e0e0" text-anchor="middle" font-size="12">🎥 步骤 10: LogC3 转换</text>
+  <text x="780" y="1086" fill="#888" text-anchor="middle" font-size="10">E = 10^((Code-95)/500)</text>
+  <text x="780" y="1103" fill="#888" text-anchor="middle" font-size="10">LogC3 = 0.0925×ln(E+0.005)+0.391</text>
+  <text x="780" y="1118" fill="#00b4d8" text-anchor="middle" font-size="10">→ ARRI 对数空间</text>
+  <line x1="780" y1="1120" x2="780" y2="1143" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
-  <!-- 标题 -->
-  <text x="450" y="1330" fill="#00b4d8" text-anchor="middle" font-size="16" font-weight="bold">Aurhythm 胶片 Cineon 校准器 v3.6</text>
-  <text x="450" y="1360" fill="#888" text-anchor="middle" font-size="12">RAW → 密度 → 解串扰 → Sigmoid H-D → Cineon → LogC3</text>
+  <!-- ====== 步骤11: LUT ====== -->
+  <rect x="640" y="1148" width="280" height="75" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
+  <text x="780" y="1171" fill="#e0e0e0" text-anchor="middle" font-size="12">🎨 步骤 11: LUT 套用</text>
+  <text x="780" y="1189" fill="#888" text-anchor="middle" font-size="10">加载 .cube 3D LUT</text>
+  <text x="780" y="1206" fill="#888" text-anchor="middle" font-size="10">三线性插值 (Trilinear)</text>
+  <text x="780" y="1221" fill="#00b4d8" text-anchor="middle" font-size="10">→ Rec.709 / P3 / 自定义</text>
+  <line x1="780" y1="1223" x2="780" y2="1246" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ====== 输出 ====== -->
+  <rect x="580" y="1250" width="400" height="60" fill="#1a1a1a" stroke="#00ff00" stroke-width="2" rx="6"/>
+  <text x="780" y="1273" fill="#00ff00" text-anchor="middle" font-size="14">💾 输出</text>
+  <text x="780" y="1293" fill="#e0e0e0" text-anchor="middle" font-size="11">TIFF 16/32-bit · EXR 32-bit · DPX 10-bit</text>
+  <text x="780" y="1308" fill="#e0e0e0" text-anchor="middle" font-size="11">Cineon 或 LogC3 对数空间</text>
+
+  <!-- ====== 信息面板 ====== -->
+  <rect x="90" y="1180" width="260" height="130" fill="#1a1a1a" stroke="#ffaa00" stroke-width="1.5" rx="6" stroke-dasharray="4"/>
+  <text x="220" y="1203" fill="#ffaa00" text-anchor="middle" font-size="12">📊 v4.2 新增功能</text>
+  <text x="220" y="1225" fill="#888" text-anchor="middle" font-size="10">• ICC/DCP 导入 (.dcp, .icc)</text>
+  <text x="220" y="1243" fill="#888" text-anchor="middle" font-size="10">• 色温插值滑块 (0→钨丝灯, 1→日光)</text>
+  <text x="220" y="1261" fill="#888" text-anchor="middle" font-size="10">• 色卡矫正 + 误差分析 (ΔE)</text>
+  <text x="220" y="1279" fill="#888" text-anchor="middle" font-size="10">• 批量处理 (复制全部参数)</text>
+  <text x="220" y="1297" fill="#888" text-anchor="middle" font-size="10">• 胶片预设 (从柯达H-D曲线采点)</text>
+
+  <!-- ====== 底部 ====== -->
+  <line x1="80" y1="1340" x2="920" y2="1340" stroke="#333" stroke-width="1"/>
+  <text x="500" y="1363" fill="#888" text-anchor="middle" font-size="11">完整色彩管理链条: RAW → ICC/DCP插值 → 色卡矫正 → 密度 → 解串扰 → Sigmoid H-D → Cineon → LogC3</text>
+  <text x="500" y="1385" fill="#444" text-anchor="middle" font-size="9">v4.2 | 基于柯达官方H-D曲线采点拟合 | MIT License</text>
+
 </svg>
