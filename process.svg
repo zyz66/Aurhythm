@@ -1,147 +1,150 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1550" font-family="monospace" font-size="12">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 1560" font-family="Helvetica, Arial, sans-serif" font-size="13">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#00b4d8"/>
     </marker>
-    <marker id="arrowhead_green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#00ff00"/>
+    <marker id="arrowheadLook" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c792ea"/>
     </marker>
-    <marker id="arrowhead_orange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#ffaa00"/>
-    </marker>
-    <linearGradient id="bg_grad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0d1117"/>
-      <stop offset="100%" stop-color="#161b22"/>
-    </linearGradient>
   </defs>
 
-  <rect width="1000" height="1550" fill="url(#bg_grad)"/>
+  <rect width="1060" height="1560" fill="#141414"/>
 
-  <!-- ====== 标题 ====== -->
-  <text x="500" y="32" fill="#00b4d8" text-anchor="middle" font-size="18" font-weight="bold">Aurhythm 胶片 Cineon 校准器 v4.2</text>
-  <text x="500" y="52" fill="#888" text-anchor="middle" font-size="12">完整色彩管理流程: ICC/DCP + 色卡矫正 + 密度法 + 胶片预设</text>
-  <line x1="180" y1="62" x2="820" y2="62" stroke="#333" stroke-width="1"/>
+  <text x="530" y="40" fill="#e0e0e0" font-size="22" font-weight="bold" text-anchor="middle">Aurhythm v5.0 — 胶片 Cineon / LogC3 校准流程</text>
+  <text x="530" y="64" fill="#8a8a8a" font-size="13" text-anchor="middle">物理映射，而非经验调色 · 阶段 ①–⑥ 一律不裁剪</text>
 
-  <!-- ====== 输入 ====== -->
-  <rect x="320" y="75" width="360" height="48" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="95" fill="#e0e0e0" text-anchor="middle" font-size="14">📷 输入: RAW 文件</text>
-  <text x="500" y="113" fill="#888" text-anchor="middle" font-size="10">NEF / DNG / CR2 / ARW / RAF / ORF / RW2</text>
-  <line x1="500" y1="123" x2="500" y2="145" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <g>
+    <rect x="300" y="90" width="460" height="46" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="112" fill="#e0e0e0" text-anchor="middle" font-weight="bold">① 输入：RAW（rawpy 懒加载）/ 16-bit TIFF / PNG</text>
+    <text x="530" y="129" fill="#8a8a8a" text-anchor="middle" font-size="11">RAW 按 gamma=(1,1)、no_auto_bright、output_color=raw 解码 → 相机原生线性</text>
 
-  <!-- ====== 步骤1 ====== -->
-  <rect x="280" y="150" width="440" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="172" fill="#e0e0e0" text-anchor="middle" font-size="13">📦 步骤 1: RAW 解码</text>
-  <text x="500" y="190" fill="#888" text-anchor="middle" font-size="11">rawpy.postprocess(gamma=(1,1), no_auto_bright=True)</text>
-  <text x="500" y="207" fill="#00b4d8" text-anchor="middle" font-size="11">→ 线性光 RGB (0-1 浮点)</text>
-  <line x1="500" y1="212" x2="500" y2="235" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="156" width="460" height="42" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="182" fill="#e0e0e0" text-anchor="middle">② 白平衡（AsShotNeutral / 手动对角增益）</text>
 
-  <!-- ====== 步骤2: ICC/DCP ====== -->
-  <rect x="240" y="240" width="520" height="78" fill="#1a1a1a" stroke="#ffaa00" stroke-width="2" rx="6"/>
-  <text x="500" y="262" fill="#e0e0e0" text-anchor="middle" font-size="13">🌡️ 步骤 2: ICC/DCP 色温插值 (可选)</text>
-  <text x="500" y="280" fill="#888" text-anchor="middle" font-size="10.5">导入 .dcp/.icc → 日光矩阵 (5500K) + 钨丝灯矩阵 (3200K)</text>
-  <text x="500" y="297" fill="#e0e0e0" text-anchor="middle" font-size="11">M_interp = w × M_day + (1-w) × M_tung</text>
-  <text x="500" y="314" fill="#ffaa00" text-anchor="middle" font-size="10">← 色温滑块: 0=钨丝灯 | 0.5=中性 | 1=日光 →</text>
-  <line x1="500" y1="318" x2="500" y2="342" stroke="#ffaa00" stroke-width="1.5" marker-end="url(#arrowhead_orange)"/>
+    <rect x="300" y="218" width="460" height="54" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="240" fill="#e0e0e0" text-anchor="middle" font-weight="bold">③ 相机 profile：ICC / DCP → XYZ(D50) → Bradford → 线性 sRGB(D65)</text>
+    <text x="530" y="258" fill="#8a8a8a" text-anchor="middle" font-size="11">双光源矩阵按权重插值 · LUT 型 ICC 明确报错，绝不静默用单位矩阵</text>
 
-  <!-- ====== 步骤3: 色卡矫正 ====== -->
-  <rect x="240" y="347" width="520" height="78" fill="#1a1a1a" stroke="#ffaa00" stroke-width="2" rx="6"/>
-  <text x="500" y="369" fill="#e0e0e0" text-anchor="middle" font-size="13">🎯 步骤 3: 色卡矫正 (可选，与ICC并行)</text>
-  <text x="500" y="387" fill="#888" text-anchor="middle" font-size="10.5">导入 .ccmx/.json 或自动检测 X-Rite ColorChecker 24色块</text>
-  <text x="500" y="404" fill="#e0e0e0" text-anchor="middle" font-size="11">M_cc = (detectedᵀ×detected + λI)⁻¹ × detectedᵀ × target</text>
-  <text x="500" y="421" fill="#ffaa00" text-anchor="middle" font-size="10">← 误差分析: ΔE 平均值/最大值 →</text>
-  <line x1="500" y1="425" x2="500" y2="448" stroke="#ffaa00" stroke-width="1.5" marker-end="url(#arrowhead_orange)"/>
+    <rect x="300" y="292" width="460" height="42" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="318" fill="#e0e0e0" text-anchor="middle">④ 色卡矫正（3×3 / 3×3+offset，岭回归，ΔE2000 报告）</text>
 
-  <!-- ====== 步骤4: 片基采样 ====== -->
-  <rect x="280" y="453" width="440" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="475" fill="#e0e0e0" text-anchor="middle" font-size="13">📌 步骤 4: 片基采样</text>
-  <text x="500" y="493" fill="#888" text-anchor="middle" font-size="11">手动点击齿孔/透明区域 或 自动检测最亮中性区域</text>
-  <text x="500" y="510" fill="#00b4d8" text-anchor="middle" font-size="11">→ base_val (RGB) 定义白场: T=1, D=0</text>
-  <line x1="500" y1="515" x2="500" y2="538" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="354" width="460" height="42" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="380" fill="#e0e0e0" text-anchor="middle">⑤ 通道增益（印片光式，逐通道线性增益）</text>
 
-  <!-- ====== 步骤5: 密度域对齐 ====== -->
-  <rect x="270" y="543" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="565" fill="#e0e0e0" text-anchor="middle" font-size="13">⚖️ 步骤 5: 密度域自动对齐</text>
-  <text x="500" y="583" fill="#888" text-anchor="middle" font-size="11">D = -log10(V/base_val) → target=0.7 → gain=10^(D_raw-D_target)</text>
-  <text x="500" y="600" fill="#00b4d8" text-anchor="middle" font-size="11">→ 修复阴影偏色 (密度域对齐，非线性域)</text>
-  <line x1="500" y1="605" x2="500" y2="628" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="416" width="460" height="62" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="438" fill="#e0e0e0" text-anchor="middle" font-weight="bold">⑥ 密度 D = −log₁₀(v / base_aligned)</text>
+    <text x="530" y="456" fill="#8a8a8a" text-anchor="middle" font-size="11">base_aligned = 片基采样推过 ②–④，逐通道保留（不再覆盖成标量灰）</text>
+    <text x="530" y="471" fill="#8a8a8a" text-anchor="middle" font-size="11">只在下界保护 log，允许 D &lt; 0；越窗只统计、不丢信息</text>
 
-  <!-- ====== 步骤6: 线性→密度 ====== -->
-  <rect x="280" y="633" width="440" height="58" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="655" fill="#e0e0e0" text-anchor="middle" font-size="13">📐 步骤 6: 线性 → 密度</text>
-  <text x="500" y="673" fill="#888" text-anchor="middle" font-size="11">T = V_gained / base_val</text>
-  <text x="500" y="688" fill="#00b4d8" text-anchor="middle" font-size="11">D = -log10(T) (Davidson 公式)</text>
-  <line x1="500" y1="691" x2="500" y2="715" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="498" width="460" height="42" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="524" fill="#e0e0e0" text-anchor="middle">⑦ 解串扰矩阵（染料层分离，负染料密度钳零）</text>
 
-  <!-- ====== 步骤7: 解串扰矩阵 ====== -->
-  <rect x="270" y="720" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="742" fill="#e0e0e0" text-anchor="middle" font-size="13">🔄 步骤 7: 解串扰矩阵 (胶片预设)</text>
-  <text x="500" y="760" fill="#888" text-anchor="middle" font-size="11">[D_C, D_M, D_Y]ᵀ = M_inv @ [D_R, D_G, D_B]ᵀ</text>
-  <text x="500" y="777" fill="#00b4d8" text-anchor="middle" font-size="11">→ 分离三层CMY染料光谱串扰 (3×3矩阵)</text>
-  <line x1="500" y1="782" x2="500" y2="805" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="240" y="560" width="580" height="96" rx="6" fill="#20402f" stroke="#00d47a"/>
+    <text x="530" y="584" fill="#e0e0e0" text-anchor="middle" font-weight="bold" font-size="15">⑧ 非线性校正：胶片特性曲线（作用在归一化密度域）</text>
+    <text x="530" y="606" fill="#c9f5dd" text-anchor="middle" font-size="11">toe(t) = s_t·softplus(a_in·(t − t_c)/s_t)　　t′(t) = 1 − s_s·softplus((1 − toe)/s_s)</text>
+    <text x="530" y="624" fill="#8a8a8a" text-anchor="middle" font-size="11">严格单调由构造保证（可证）· 中点与中段斜率闭式精确 · 实用端点有限 → 逆解良态</text>
+    <text x="530" y="642" fill="#8a8a8a" text-anchor="middle" font-size="11">t = (D − d_min)/(d_max − d_min)　→　t′　（512 级输入 → 512 级输出）</text>
 
-  <!-- ====== 步骤8: Sigmoid H-D ====== -->
-  <rect x="230" y="810" width="540" height="80" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="832" fill="#e0e0e0" text-anchor="middle" font-size="13">📈 步骤 8: 软裁剪 Sigmoid H-D 曲线 (胶片预设)</text>
-  <text x="500" y="850" fill="#888" text-anchor="middle" font-size="11">t = (D - D_min) / (D_max - D_min)</text>
-  <text x="500" y="867" fill="#888" text-anchor="middle" font-size="11">t_soft = 1 / (1 + exp(-k × (t - 0.5)))  (Logistic 软裁剪)</text>
-  <text x="500" y="884" fill="#00b4d8" text-anchor="middle" font-size="11">logH = b - (1/a) × ln(t_soft/(1-t_soft))  (logit 逆变换)</text>
-  <line x1="500" y1="890" x2="500" y2="913" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="240" y="676" width="580" height="76" rx="6" fill="#20402f" stroke="#00d47a"/>
+    <text x="530" y="700" fill="#e0e0e0" text-anchor="middle" font-weight="bold" font-size="15">⑨ Cineon 编码（编码的是密度，不是场景曝光）</text>
+    <text x="530" y="722" fill="#c9f5dd" text-anchor="middle" font-size="11">auto_fit（默认）：整个输入密度窗口 → 参考黑 95 / 参考白 685</text>
+    <text x="530" y="740" fill="#8a8a8a" text-anchor="middle" font-size="11">关掉 auto_fit：500 codes / 1.0 密度单位（Cineon 标准），末端裁剪 [0,1023]</text>
 
-  <!-- ====== 步骤9: Cineon编码 ====== -->
-  <rect x="270" y="918" width="460" height="62" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="500" y="940" fill="#e0e0e0" text-anchor="middle" font-size="13">🎞️ 步骤 9: Cineon 编码</text>
-  <text x="500" y="958" fill="#888" text-anchor="middle" font-size="11">CineonCode = 95 + 500 × (logH_ref - logH)</text>
-  <text x="500" y="975" fill="#00b4d8" text-anchor="middle" font-size="11">→ 柯达工业标准对数空间 (0-1023 10-bit编码)</text>
-  <line x1="500" y1="980" x2="500" y2="1003" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="772" width="460" height="42" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="798" fill="#e0e0e0" text-anchor="middle">⑩ 可选 LogC3：E = 0.90·10^((code−685)/500) → ARRI LogC3</text>
 
-  <!-- ====== 分支 ====== -->
-  <line x1="500" y1="1003" x2="220" y2="1040" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <line x1="500" y1="1003" x2="780" y2="1040" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <text x="310" y="1025" fill="#888" text-anchor="middle" font-size="10">预览</text>
-  <text x="700" y="1025" fill="#888" text-anchor="middle" font-size="10">导出</text>
+    <rect x="300" y="834" width="460" height="46" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="856" fill="#e0e0e0" text-anchor="middle" font-weight="bold">⑪ 导出：TIFF 16/32 · DPX 10-bit · EXR（+ provenance）</text>
+    <text x="530" y="873" fill="#8a8a8a" text-anchor="middle" font-size="11">TIFF 内嵌完整参数；DPX/EXR 另写 .json sidecar</text>
+  </g>
 
-  <!-- ====== 预览分支 ====== -->
-  <rect x="90" y="1045" width="260" height="105" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="220" y="1068" fill="#e0e0e0" text-anchor="middle" font-size="12">👁️ 预览显示</text>
-  <text x="220" y="1088" fill="#888" text-anchor="middle" font-size="10">反相: display = 1.0 - data</text>
-  <text x="220" y="1105" fill="#888" text-anchor="middle" font-size="10">Reinhard 色调映射</text>
-  <text x="220" y="1122" fill="#888" text-anchor="middle" font-size="10">sRGB 伽马编码 (OETF)</text>
-  <text x="220" y="1142" fill="#00b4d8" text-anchor="middle" font-size="10">→ 8-bit RGB 屏幕显示</text>
+  <g stroke="#00b4d8" stroke-width="2" marker-end="url(#arrowhead)" fill="none">
+    <line x1="530" y1="136" x2="530" y2="154"/>
+    <line x1="530" y1="198" x2="530" y2="216"/>
+    <line x1="530" y1="272" x2="530" y2="290"/>
+    <line x1="530" y1="334" x2="530" y2="352"/>
+    <line x1="530" y1="396" x2="530" y2="414"/>
+    <line x1="530" y1="478" x2="530" y2="496"/>
+    <line x1="530" y1="540" x2="530" y2="558"/>
+    <line x1="530" y1="656" x2="530" y2="674"/>
+    <line x1="530" y1="752" x2="530" y2="770"/>
+    <line x1="530" y1="814" x2="530" y2="832"/>
+    <line x1="530" y1="880" x2="530" y2="898"/>
+  </g>
 
-  <!-- ====== 步骤10: LogC3 ====== -->
-  <rect x="640" y="1045" width="280" height="75" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="780" y="1068" fill="#e0e0e0" text-anchor="middle" font-size="12">🎥 步骤 10: LogC3 转换</text>
-  <text x="780" y="1086" fill="#888" text-anchor="middle" font-size="10">E = 10^((Code-95)/500)</text>
-  <text x="780" y="1103" fill="#888" text-anchor="middle" font-size="10">LogC3 = 0.0925×ln(E+0.005)+0.391</text>
-  <text x="780" y="1118" fill="#00b4d8" text-anchor="middle" font-size="10">→ ARRI 对数空间</text>
-  <line x1="780" y1="1120" x2="780" y2="1143" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <g>
+    <rect x="30" y="218" width="240" height="158" rx="6" fill="#2a2333" stroke="#8a8a8a"/>
+    <text x="150" y="242" fill="#e0e0e0" text-anchor="middle" font-weight="bold">测量依据（测量，非调色）</text>
+    <text x="46" y="264" fill="#b9b9b9" font-size="11">• 片基采样（多点取中位数）</text>
+    <text x="46" y="282" fill="#b9b9b9" font-size="11">• 自动片基：掩膜 ≥ 分位 + 中位数</text>
+    <text x="46" y="300" fill="#b9b9b9" font-size="11">• 密度域中性化（逐通道对齐）</text>
+    <text x="46" y="318" fill="#b9b9b9" font-size="11">• 色卡 ΔE2000（CIEDE2000）</text>
+    <text x="46" y="336" fill="#b9b9b9" font-size="11">• 越窗 / 裁剪统计（透明化）</text>
+    <text x="46" y="354" fill="#b9b9b9" font-size="11">• 密度直方图与达成密度</text>
+    <text x="46" y="372" fill="#b9b9b9" font-size="11">• 色彩矩阵由色度坐标推导</text>
 
-  <!-- ====== 步骤11: LUT ====== -->
-  <rect x="640" y="1148" width="280" height="75" fill="#1a1a1a" stroke="#00b4d8" stroke-width="1.5" rx="6"/>
-  <text x="780" y="1171" fill="#e0e0e0" text-anchor="middle" font-size="12">🎨 步骤 11: LUT 套用</text>
-  <text x="780" y="1189" fill="#888" text-anchor="middle" font-size="10">加载 .cube 3D LUT</text>
-  <text x="780" y="1206" fill="#888" text-anchor="middle" font-size="10">三线性插值 (Trilinear)</text>
-  <text x="780" y="1221" fill="#00b4d8" text-anchor="middle" font-size="10">→ Rec.709 / P3 / 自定义</text>
-  <line x1="780" y1="1223" x2="780" y2="1246" stroke="#00b4d8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <rect x="790" y="90" width="240" height="188" rx="6" fill="#2a2333" stroke="#8a8a8a"/>
+    <text x="910" y="114" fill="#e0e0e0" text-anchor="middle" font-weight="bold">标准锚点（有测试守护）</text>
+    <text x="806" y="138" fill="#b9b9b9" font-size="11">参考黑　code 95</text>
+    <text x="806" y="158" fill="#b9b9b9" font-size="11">参考白　code 685（90% 白卡）</text>
+    <text x="806" y="178" fill="#b9b9b9" font-size="11">编码密度　500 codes/decade</text>
+    <text x="806" y="196" fill="#b9b9b9" font-size="11">　　= 150.515 codes / 档</text>
+    <text x="806" y="218" fill="#b9b9b9" font-size="11">18% 中灰　code 335.515</text>
+    <text x="806" y="236" fill="#b9b9b9" font-size="11">　→ LogC3 0.391007（ARRI）</text>
+    <text x="806" y="256" fill="#b9b9b9" font-size="11">cut 点连续　0.149658</text>
 
-  <!-- ====== 输出 ====== -->
-  <rect x="580" y="1250" width="400" height="60" fill="#1a1a1a" stroke="#00ff00" stroke-width="2" rx="6"/>
-  <text x="780" y="1273" fill="#00ff00" text-anchor="middle" font-size="14">💾 输出</text>
-  <text x="780" y="1293" fill="#e0e0e0" text-anchor="middle" font-size="11">TIFF 16/32-bit · EXR 32-bit · DPX 10-bit</text>
-  <text x="780" y="1308" fill="#e0e0e0" text-anchor="middle" font-size="11">Cineon 或 LogC3 对数空间</text>
+    <rect x="790" y="330" width="240" height="160" rx="6" fill="#2a2333" stroke="#8a8a8a"/>
+    <text x="910" y="354" fill="#e0e0e0" text-anchor="middle" font-weight="bold">色彩学</text>
+    <text x="806" y="378" fill="#b9b9b9" font-size="11">PCS = D50（ICC 与 DNG 一致）</text>
+    <text x="806" y="396" fill="#b9b9b9" font-size="11">工作空间 = 线性 sRGB(D65)</text>
+    <text x="806" y="414" fill="#b9b9b9" font-size="11">Bradford 色适应</text>
+    <text x="806" y="432" fill="#b9b9b9" font-size="11">ΔE2000（Sharma 34 向量通过）</text>
+    <text x="806" y="450" fill="#b9b9b9" font-size="11">矩阵由色度坐标运行时推导</text>
+    <text x="806" y="468" fill="#b9b9b9" font-size="11">白点：xy 现算，自洽优先</text>
+  </g>
 
-  <!-- ====== 信息面板 ====== -->
-  <rect x="90" y="1180" width="260" height="130" fill="#1a1a1a" stroke="#ffaa00" stroke-width="1.5" rx="6" stroke-dasharray="4"/>
-  <text x="220" y="1203" fill="#ffaa00" text-anchor="middle" font-size="12">📊 v4.2 新增功能</text>
-  <text x="220" y="1225" fill="#888" text-anchor="middle" font-size="10">• ICC/DCP 导入 (.dcp, .icc)</text>
-  <text x="220" y="1243" fill="#888" text-anchor="middle" font-size="10">• 色温插值滑块 (0→钨丝灯, 1→日光)</text>
-  <text x="220" y="1261" fill="#888" text-anchor="middle" font-size="10">• 色卡矫正 + 误差分析 (ΔE)</text>
-  <text x="220" y="1279" fill="#888" text-anchor="middle" font-size="10">• 批量处理 (复制全部参数)</text>
-  <text x="220" y="1297" fill="#888" text-anchor="middle" font-size="10">• 胶片预设 (从柯达H-D曲线采点)</text>
+  <g>
+    <rect x="240" y="930" width="580" height="152" rx="6" fill="#2c2436" stroke="#c792ea" stroke-dasharray="6 4"/>
+    <text x="530" y="956" fill="#c792ea" text-anchor="middle" font-weight="bold" font-size="15">调色层（可选 · 非校准 · 默认全部恒等）</text>
+    <text x="530" y="980" fill="#b9b9b9" text-anchor="middle" font-size="11">曝光基准（Cineon 标度平移）· 对比度（绕 18% 中灰旋转）</text>
+    <text x="530" y="999" fill="#b9b9b9" text-anchor="middle" font-size="11">ASC-CDL：Lift(offset) / Gamma(power) / Gain(slope)，主控 + R/G/B</text>
+    <text x="530" y="1018" fill="#b9b9b9" text-anchor="middle" font-size="11">分通道单调曲线（Fritsch–Carlson PCHIP）</text>
+    <text x="530" y="1042" fill="#8a8a8a" text-anchor="middle" font-size="11">导出 .cube 时默认不烘入这些参数；勾选「含调色层」才会包含</text>
+    <text x="530" y="1062" fill="#8a8a8a" text-anchor="middle" font-size="11">它们只作用于 code 域，不改变 ①–⑨ 的物理映射</text>
+  </g>
+  <g stroke="#c792ea" stroke-width="2" marker-end="url(#arrowheadLook)" fill="none">
+    <path d="M240 1005 L185 1005 L185 795 L298 795"/>
+  </g>
+  <text x="150" y="1000" fill="#c792ea" font-size="11" text-anchor="middle">可选插入</text>
 
-  <!-- ====== 底部 ====== -->
-  <line x1="80" y1="1340" x2="920" y2="1340" stroke="#333" stroke-width="1"/>
-  <text x="500" y="1363" fill="#888" text-anchor="middle" font-size="11">完整色彩管理链条: RAW → ICC/DCP插值 → 色卡矫正 → 密度 → 解串扰 → Sigmoid H-D → Cineon → LogC3</text>
-  <text x="500" y="1385" fill="#444" text-anchor="middle" font-size="9">v4.2 | 基于柯达官方H-D曲线采点拟合 | MIT License</text>
+  <g>
+    <rect x="240" y="1110" width="580" height="104" rx="6" fill="#1f3b4d" stroke="#00b4d8"/>
+    <text x="530" y="1136" fill="#e0e0e0" text-anchor="middle" font-weight="bold">显示变换（所见即所得）</text>
+    <text x="530" y="1158" fill="#b9b9b9" text-anchor="middle" font-size="11">导出数据 → 还原线性曝光 E → 显示曝光/伽马 → sRGB 编码 → uint8</text>
+    <text x="530" y="1178" fill="#8a8a8a" text-anchor="middle" font-size="11">预览与导出共用同一份数据，有测试断言两者严格一致</text>
+    <text x="530" y="1198" fill="#8a8a8a" text-anchor="middle" font-size="11">另提供假色、直方图、波形、RGB parade、矢量示波器数据</text>
+  </g>
+  <g stroke="#00b4d8" stroke-width="2" marker-end="url(#arrowhead)" fill="none">
+    <path d="M820 855 L900 855 L900 1108 L820 1108"/>
+  </g>
 
+  <g>
+    <rect x="50" y="1250" width="450" height="126" rx="6" fill="#22303a" stroke="#8a8a8a"/>
+    <text x="275" y="1276" fill="#e0e0e0" text-anchor="middle" font-weight="bold">输出</text>
+    <text x="70" y="1300" fill="#b9b9b9" font-size="11">TIFF 16-bit / 32-bit float（无依赖内置写出器 + tifffile 优先）</text>
+    <text x="70" y="1318" fill="#b9b9b9" font-size="11">DPX 10-bit（SMPTE 268M，packing 1，位精确往返有测试）</text>
+    <text x="70" y="1336" fill="#b9b9b9" font-size="11">EXR half / float（需 imageio）</text>
+    <text x="70" y="1354" fill="#b9b9b9" font-size="11">.cube 校准变换（可选含调色层）</text>
+
+    <rect x="560" y="1250" width="450" height="126" rx="6" fill="#22303a" stroke="#8a8a8a"/>
+    <text x="785" y="1276" fill="#e0e0e0" text-anchor="middle" font-weight="bold">工程</text>
+    <text x="580" y="1300" fill="#b9b9b9" font-size="11">参数注册表（UI 键空间唯一来源，杜绝死控件）</text>
+    <text x="580" y="1318" fill="#b9b9b9" font-size="11">参数快照 JSON + v4 迁移（未知键明确报告）</text>
+    <text x="580" y="1336" fill="#b9b9b9" font-size="11">批量：完整 profile 路径 · 工作线程 · 可取消</text>
+    <text x="580" y="1354" fill="#b9b9b9" font-size="11">285 个 unittest，无 tkinter/rawpy 也能全绿</text>
+  </g>
+
+  <text x="530" y="1424" fill="#8a8a8a" font-size="11" text-anchor="middle">依赖边界：只有 app.py 可 import tkinter；io_read / io_write 懒加载 rawpy / tifffile / Pillow / imageio</text>
+  <text x="530" y="1446" fill="#8a8a8a" font-size="11" text-anchor="middle">色彩科学：ICC 与 DNG 的 PCS 均为 D50；工作空间固定为线性 sRGB(D65)</text>
+  <text x="530" y="1478" fill="#c792ea" font-size="11" text-anchor="middle">调色控件默认恒等 —— 本工具的身份是校准器，不是调色台</text>
 </svg>
